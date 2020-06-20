@@ -151,10 +151,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: Bruno
-  useRandomSeed: 0
-  fillPercentage: 42
-  width: 60
-  height: 60
+  useRandomSeed: 1
+  fillPercentage: 52
+  smoothness: 4
+  smoothProcess: 5
+  width: 128
+  height: 72
   wallColor: {r: 0, g: 0, b: 0, a: 1}
   spaceColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &445690195
