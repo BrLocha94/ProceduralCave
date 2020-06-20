@@ -32,6 +32,13 @@ public class MapGenerator : MonoBehaviour
 
     bool canDrawGizmos = false;
 
+    MeshGenerator meshGenerator;
+
+    void Awake()
+    {
+        meshGenerator = FindObjectOfType<MeshGenerator>();
+    }
+
     void Start()
     {
         GenerateMap();
@@ -55,6 +62,9 @@ public class MapGenerator : MonoBehaviour
         {
             SmoothMap();
         }
+
+        if (meshGenerator != null)
+            meshGenerator.GenerateMesh(map, 1);
 
         canDrawGizmos = true;
     }
@@ -120,6 +130,7 @@ public class MapGenerator : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        /*
         if (canDrawGizmos == true && map != null)
         {
             for (int x = 0; x < width; x++)
@@ -132,5 +143,6 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
+        */
     }
 }
