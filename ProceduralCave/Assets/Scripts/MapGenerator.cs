@@ -20,6 +20,12 @@ public class MapGenerator : MonoBehaviour
     [Range(0, 5)]
     public int smoothProcess;
 
+    [Header("Region processing general params")]
+    public bool aplyWallRegionProcess;
+    public int wallRegionTolerence;
+    public bool aplyRoomRegionProcess;
+    public int roomRegionTolerence;
+
     [Header("Map dimensions")]
     public int width;
     public int height;
@@ -56,21 +62,112 @@ public class MapGenerator : MonoBehaviour
             SmoothMap();
         }
 
-        borderedMap = new int[width + borderSize * 2, height + borderSize * 2];
+        ProcessMap();
 
-        for (int x = 0; x < borderedMap.GetLength(0); x++)
-        {
-            for (int y = 0; y < borderedMap.GetLength(1); y++)
-            {
-                if (x >= borderSize && x < width + borderSize && y >= borderSize && y < height + borderSize)
-                    borderedMap[x, y] = map[x - borderSize, y - borderSize];
-                else
-                    borderedMap[x, y] = 1;
-            }
-        }
+        CreateBorder();
 
         if (meshGenerator != null)
             meshGenerator.GenerateMesh(borderedMap, 1);
+    }
+
+    void ProcessMap()
+    {
+        if (aplyWallRegionProcess)
+        {
+            List<List<Coordinate>> wallRegions = GetRegions(1);
+
+            foreach (List<Coordinate> region in wallRegions)
+            {
+                if (region.Count < wallRegionTolerence)
+                {
+                    foreach (Coordinate tile in region)
+                    {
+                        map[tile.tileX, tile.tileY] = 0;
+                    }
+                }
+            }
+        }
+
+        if (aplyRoomRegionProcess)
+        {
+            List<List<Coordinate>> roomRegions = GetRegions(0);
+
+            foreach (List<Coordinate> room in roomRegions)
+            {
+                if (room.Count < roomRegionTolerence)
+                {
+                    foreach (Coordinate tile in room)
+                    {
+                        map[tile.tileX, tile.tileY] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    List<List<Coordinate>> GetRegions(int tileType)
+    {
+        List<List<Coordinate>> regions = new List<List<Coordinate>>();
+        int[,] mapFlags = new int[width, height];
+
+        for(int x = 0; x < width; x++)
+        {
+            for(int y = 0; y < height; y++)
+            {
+                if(mapFlags[x,y] == 0 && map[x,y] == tileType)
+                {
+                    List<Coordinate> newRegion = GetRegionTiles(x, y);
+                    regions.Add(newRegion);
+
+                    foreach(Coordinate tile in newRegion)
+                    {
+                        mapFlags[tile.tileX, tile.tileY] = 1;
+                    }
+                }
+            }
+        }
+
+        return regions;
+    }
+
+    List<Coordinate> GetRegionTiles(int startX, int startY)
+    {
+        List<Coordinate> tiles = new List<Coordinate>();
+
+        int[,] mapFlags = new int[width, height];
+        int tileType = map[startX, startY];
+
+        Queue<Coordinate> queue = new Queue<Coordinate>();
+        queue.Enqueue(new Coordinate(startX, startY));
+        mapFlags[startX, startY] = 1; //Checked position
+
+        while(queue.Count > 0)
+        {
+            Coordinate tile = queue.Dequeue();
+            tiles.Add(tile);
+
+            for(int x = tile.tileX - 1; x <= tile.tileX + 1; x++)
+            {
+                for(int y = tile.tileY - 1; y <= tile.tileY + 1; y++)
+                {
+                    if(IsInMapRange(x, y) && (x == tile.tileX || y == tile.tileY))
+                    {
+                        if(mapFlags[x, y] == 0 && map[x, y] == tileType)
+                        {
+                            mapFlags[x, y] = 1;//Checked position
+                            queue.Enqueue(new Coordinate(x, y));
+                        }
+                    }
+                }
+            }
+        }
+
+        return tiles;
+    }
+
+    bool IsInMapRange(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     void CreateBorder()
@@ -114,7 +211,7 @@ public class MapGenerator : MonoBehaviour
         {
             for(int j = y - 1; j <= y + 1; j++)
             {
-                if (i >= 0 && i < width && j >= 0 && j < height)
+                if (IsInMapRange(i, j))
                 {
                     if (i != x || j != y)
                         wallCount += map[i, j];
@@ -145,6 +242,18 @@ public class MapGenerator : MonoBehaviour
                 else
                     map[x, y] = (pseudoRandom.Next(0, 100) < fillPercentage) ? 1 : 0;
             }
+        }
+    }
+
+    struct Coordinate
+    {
+        public int tileX;
+        public int tileY;
+
+        public Coordinate(int x, int y)
+        {
+            tileX = x;
+            tileY = y;
         }
     }
 

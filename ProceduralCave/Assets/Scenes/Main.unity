@@ -155,9 +155,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   seed: Bruno
   useRandomSeed: 1
-  fillPercentage: 52
+  fillPercentage: 50
   smoothness: 4
   smoothProcess: 5
+  aplyWallRegionProcess: 1
+  wallRegionTolerence: 50
+  aplyRoomRegionProcess: 1
+  roomRegionTolerence: 50
   width: 128
   height: 72
   borderSize: 5
