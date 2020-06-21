@@ -23,21 +23,16 @@ public class MapGenerator : MonoBehaviour
     [Header("Map dimensions")]
     public int width;
     public int height;
+    public int borderSize;
 
     [Header("Colors to paint gizmos")]
     public Color wallColor;
     public Color spaceColor;
 
     private int[,] map;
+    private int[,] borderedMap;
 
-    bool canDrawGizmos = false;
-
-    MeshGenerator meshGenerator;
-
-    void Awake()
-    {
-        meshGenerator = FindObjectOfType<MeshGenerator>();
-    }
+    public MeshGenerator meshGenerator;
 
     void Start()
     {
@@ -52,8 +47,6 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateMap()
     {
-        canDrawGizmos = false;
-
         map = new int[width, height];
 
         FillMap();
@@ -63,10 +56,37 @@ public class MapGenerator : MonoBehaviour
             SmoothMap();
         }
 
-        if (meshGenerator != null)
-            meshGenerator.GenerateMesh(map, 1);
+        borderedMap = new int[width + borderSize * 2, height + borderSize * 2];
 
-        canDrawGizmos = true;
+        for (int x = 0; x < borderedMap.GetLength(0); x++)
+        {
+            for (int y = 0; y < borderedMap.GetLength(1); y++)
+            {
+                if (x >= borderSize && x < width + borderSize && y >= borderSize && y < height + borderSize)
+                    borderedMap[x, y] = map[x - borderSize, y - borderSize];
+                else
+                    borderedMap[x, y] = 1;
+            }
+        }
+
+        if (meshGenerator != null)
+            meshGenerator.GenerateMesh(borderedMap, 1);
+    }
+
+    void CreateBorder()
+    {
+        borderedMap = new int[width + borderSize * 2, height + borderSize * 2];
+
+        for(int x = 0; x < borderedMap.GetLength(0); x++)
+        {
+            for(int y = 0; y < borderedMap.GetLength(1); y++)
+            {
+                if (x >= borderSize && x < width + borderSize && y >= borderSize && y < height + borderSize)
+                    borderedMap[x, y] = map[x - borderSize, y - borderSize];
+                else
+                    borderedMap[x, y] = 1;
+            }
+        }
     }
 
     void SmoothMap()
