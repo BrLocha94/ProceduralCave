@@ -205,7 +205,7 @@ public class MeshGenerator : MonoBehaviour
             {
                 for (int y = 0; y < nodeCountY - 1; y++)
                 {
-                    squares[x, y] = new Square(controllNodes[x, y], controllNodes[x+1, y], controllNodes[x+1, y+1], controllNodes[x, y+1]);
+                    squares[x, y] = new Square(controllNodes[x, y+1], controllNodes[x+1, y+1], controllNodes[x+1, y], controllNodes[x, y]);
                 }
             }
         }
