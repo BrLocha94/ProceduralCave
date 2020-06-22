@@ -161,7 +161,7 @@ MonoBehaviour:
   aplyWallRegionProcess: 1
   wallRegionTolerence: 50
   aplyRoomRegionProcess: 1
-  roomRegionTolerence: 50
+  roomRegionTolerence: 40
   aplyRoomConection: 1
   width: 128
   height: 72
